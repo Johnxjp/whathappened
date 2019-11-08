@@ -3,5 +3,11 @@
   "version": "0.1",
   "description": "Obtain news insights on stock fluctuations by interacting with Google stock charts",
   "manifest_version": 2,
-  "permissions": ["storage"]
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/*"],
+      "js": ["google_charts.js"]
+    }
+  ]
 }
