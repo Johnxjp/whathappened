@@ -1,0 +1,7 @@
+{
+  "name": "What Happened",
+  "version": "0.1",
+  "description": "Obtain news insights on stock fluctuations by interacting with Google stock charts",
+  "manifest_version": 2,
+  "permissions": ["storage"]
+}
