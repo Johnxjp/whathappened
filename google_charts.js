@@ -6,8 +6,9 @@ function searchNews(ticker, date) {
 
 function hasClickedChart() {}
 
-function sendMessage() {
+function sendMessage(event) {
   console.log(`Click Detected on ${window.location.href}`);
+  console.log(event);
   // chrome.runtime.sendMessage({message: "Click Event Detected"});
 }
 
