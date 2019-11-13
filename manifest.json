@@ -9,5 +9,9 @@
       "matches": ["https://www.google.com/*"],
       "js": ["google_charts.js"]
     }
-  ]
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  }
 }
