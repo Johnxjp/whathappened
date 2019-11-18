@@ -26,11 +26,19 @@ async function getGoogleNews(company, dateStart, dateEnd = null) {
   const url = googleURL(company, dateStart, dateEnd);
   console.log("URL to get", url);
   try {
-    const response = await fetch(url).then(resp => resp.text());
-    console.log(response);
+    const response = await fetch(url);
+    const googlePageHTML = await response.text();
+    console.log(googlePageHTML);
+
+    var parser = new DOMParser();
+    var document = parser.parseFromString(googlePageHTML, "text/html");
+    var newsElement = document.getElementById("search");
+    console.log(newsElement);
+    return newsElement;
   } catch (err) {
     console.log(err);
   }
+  return null;
 }
 
 function renderPopUp() {}
