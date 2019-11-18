@@ -28,10 +28,6 @@ const MONTHSTOINT = {
   december: 11
 };
 
-function searchNews(company, dateRange) {
-  // Could be in background.js? - ask question
-}
-
 function hasClickedChart(mouseEvent) {
   // Checks if clicked on chart
   const paths = mouseEvent.path;
@@ -79,22 +75,19 @@ function formatDateObject(dateText, today, timePeriod) {
       if (date.getFullYear() == "2001") {
         date.setFullYear(today.getFullYear());
       }
+      return date;
   }
 }
 
 function getCurrentChartTime(chartElement) {
+  // Gets the latest trading time shown in the chart
+  // This is usually in the first section of the chart
   const infoText = chartElement.getElementsByTagName("g-card-section")[0]
     .textContent;
 
+  // Searches for patterns like 1 Nov, 16:15
   var regex = /\d+ \w{3,4}, \d\d:\d\d/i;
-
   var stringDate = infoText.match(regex);
-  console.log(
-    "Matched date",
-    stringDate,
-    stringDate !== null,
-    new Date(Date.parse(stringDate[0]))
-  );
   if (stringDate !== null) {
     stringDate = stringDate[0];
     let today = new Date();
@@ -106,7 +99,8 @@ function getCurrentChartTime(chartElement) {
 }
 
 function extractDateRange(element) {
-  // Need to create a date object with (day, month, year, hour)
+  // Make sure that dateStart >= dateEnd. As you can drag drop range
+  // forwards and backwards
   const hoverCardSpanClassName =
     "knowledge-finance-wholepage-chart__hover-card-time";
   const selectedTimePeriodClassName = "QiGJYb fw-ch-sel";
@@ -148,11 +142,17 @@ function processClickEvent(event) {
     console.log("Summary Element", element);
 
     const company = extractCompanyName(element);
-    console.log("Company Name", company);
 
     // Note dateEnd can be null
     const [dateStart, dateEnd] = extractDateRange(element);
-    console.log("Date Start", dateStart, "Date End", dateEnd);
+    console.log(
+      "Company",
+      company,
+      "date start",
+      dateStart,
+      "date end",
+      dateEnd
+    );
     sendMessage(company, dateStart, dateEnd);
   }
 }
