@@ -72,7 +72,10 @@ function formatDateObject(dateText, today, timePeriod) {
 
     default:
       var date = new Date(Date.parse(dateText));
-      if (date.getFullYear() == "2001") {
+
+      // searches for year string
+      const textContainsYear = dateText.search(/\d{4}/);
+      if (textContainsYear === -1) {
         date.setFullYear(today.getFullYear());
       }
       return date;
