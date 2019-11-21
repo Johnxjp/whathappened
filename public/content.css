@@ -1,17 +1,17 @@
-#what-happened-iframe {
-    top: 12px;
-    right: 12px;
-    bottom: initial;
-    left: initial;
-    width: 300px;
-    height: 800px;
-    z-index: 2147483647 !important;
-    position: fixed !important;
-    display: block !important;
-    user-select: none !important;
-    border-width: 0px;
-    border-style: initial;
-    border-color: initial;
-    border-image: initial;
-    background-color: rgba(0, 0, 0, 0.05);
-  }
+#what-happened-iframe-id {
+  top: 12px;
+  right: 12px;
+  bottom: initial;
+  left: initial;
+  width: 300px;
+  height: 800px;
+  z-index: 2147483647 !important;
+  position: fixed !important;
+  /* display: block; */
+  user-select: none !important;
+  border-width: 0px;
+  border-style: initial;
+  border-color: initial;
+  border-image: initial;
+  background-color: rgba(0, 0, 0, 0.05);
+}

@@ -58,5 +58,5 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
 chrome.browserAction.onClicked.addListener(function(tab) {
   console.log("I've detected a browser click");
-  chrome.tabs.sendMessage(tab.id, { message: `hello from ${tab.id}` });
+  chrome.tabs.sendMessage(tab.id, { message: `browser-clicked` });
 });

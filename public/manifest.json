@@ -5,12 +5,8 @@
   "description": "News insights",
   "content_scripts": [
     {
-      "js": ["content.js"],
-      "css": ["content.css"],
-      "matches": ["https://www.google.com/*"]
-    },
-    {
       "js": ["google_charts.js"],
+      "css": ["content.css"],
       "matches": ["https://www.google.com/*"]
     }
   ],

@@ -3,6 +3,8 @@
 
 /* global chrome */
 
+const IFRAMEID = "what-happened-iframe-id";
+
 const MONTHSTOINT = {
   jan: 0,
   feb: 1,
@@ -159,6 +161,26 @@ function processClickEvent(event) {
       dateEnd
     );
     sendMessage(company, dateStart, dateEnd);
+    showIframe();
+  }
+}
+
+function showIframe() {
+  let iframe = document.getElementById(IFRAMEID);
+  iframe.style.display = "block";
+}
+
+function hideIframe() {
+  let iframe = document.getElementById(IFRAMEID);
+  iframe.style.display = "none";
+}
+
+function toggleIframe() {
+  let iframe = document.getElementById(IFRAMEID);
+  if (iframe.style.display === "none") {
+    iframe.style.setProperty("display", "block", "important");
+  } else {
+    iframe.style.setProperty("display", "none", "important");
   }
 }
 
@@ -171,3 +193,23 @@ function sendMessage(company, dateStart, dateEnd = null) {
 }
 
 document.body.addEventListener("click", processClickEvent, true);
+
+function renderIframe() {
+  const isGoogleStockPage = financialSummaryElement() !== null;
+  if (isGoogleStockPage) {
+    console.log("Page loaded. Rendering iframe");
+    let iframe = document.createElement("iframe");
+    iframe.id = IFRAMEID;
+    iframe.src = chrome.extension.getURL("index.html");
+    iframe.style.display = "none";
+    document.body.append(iframe);
+  }
+}
+
+window.addEventListener("load", renderIframe);
+
+chrome.runtime.onMessage.addListener(function(request, sender, senderResponse) {
+  if (request.message === "browser-clicked") {
+    toggleIframe();
+  }
+});
