@@ -1,0 +1,23 @@
+{
+  "name": "What Happened?",
+  "manifest_version": 2,
+  "version": "0.0.1",
+  "description": "News insights",
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "matches": ["https://www.google.com/*"]
+    },
+    {
+      "js": ["google_charts.js"],
+      "matches": ["https://www.google.com/*"]
+    }
+  ],
+  "browser_action": {},
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "web_accessible_resources": ["*.html"]
+}
