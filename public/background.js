@@ -1,3 +1,4 @@
+/* global chrome */
 "use-strict";
 
 function googleURL(
@@ -25,20 +26,20 @@ async function getGoogleNews(company, dateStart, dateEnd = null) {
   // Makes a fetch to get the news page and returns news elements. Returns promise
   const url = googleURL(company, dateStart, dateEnd);
   console.log("URL to get", url);
-  try {
-    const response = await fetch(url);
-    const googlePageHTML = await response.text();
-    console.log(googlePageHTML);
+  // try {
+  //   const response = await fetch(url);
+  //   const googlePageHTML = await response.text();
+  //   console.log(googlePageHTML);
 
-    var parser = new DOMParser();
-    var document = parser.parseFromString(googlePageHTML, "text/html");
-    var newsElement = document.getElementById("search");
-    console.log(newsElement);
-    return newsElement;
-  } catch (err) {
-    console.log(err);
-  }
-  return null;
+  //   var parser = new DOMParser();
+  //   var document = parser.parseFromString(googlePageHTML, "text/html");
+  //   var newsElement = document.getElementById("search");
+  //   console.log(newsElement);
+  //   return newsElement;
+  // } catch (err) {
+  //   console.log("Error retrieving news page", err);
+  // }
+  // return null;
 }
 
 function renderPopUp() {}
@@ -51,4 +52,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   const dateStart = new Date(message.dateStart);
   const dateEnd = message.dateEnd === null ? null : new Date(message.dateEnd);
   getGoogleNews(message.company, dateStart, dateEnd);
+});
+
+// This will interact with the viewer content script
+
+chrome.browserAction.onClicked.addListener(function(tab) {
+  console.log("I've detected a browser click");
+  chrome.tabs.sendMessage(tab.id, { message: `hello from ${tab.id}` });
 });

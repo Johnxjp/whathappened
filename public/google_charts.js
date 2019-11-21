@@ -1,6 +1,8 @@
 // TODO: Different event for mouse button down and release
 // to get the dateRange
 
+/* global chrome */
+
 const MONTHSTOINT = {
   jan: 0,
   feb: 1,
@@ -33,7 +35,7 @@ function hasClickedChart(mouseEvent) {
   const paths = mouseEvent.path;
   const chartElementClassName = "knowledge-finance-wholepage-chart__fw-uch";
 
-  for (element of paths) {
+  for (let element of paths) {
     let elementClassName = element.className;
     if (
       typeof elementClassName === "string" &&
