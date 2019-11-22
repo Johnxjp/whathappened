@@ -3,34 +3,56 @@
 
 /* global chrome */
 
+// constants
 const IFRAMEID = "what-happened-iframe-id";
+// const MONTHSTOINT = {
+//   jan: 0,
+//   feb: 1,
+//   mar: 2,
+//   apr: 3,
+//   may: 4,
+//   jun: 5,
+//   jul: 6,
+//   aug: 7,
+//   sept: 8,
+//   oct: 9,
+//   nov: 10,
+//   dec: 11,
+//   january: 0,
+//   february: 1,
+//   march: 2,
+//   april: 3,
+//   may: 4,
+//   june: 5,
+//   july: 6,
+//   august: 7,
+//   september: 8,
+//   october: 9,
+//   november: 10,
+//   december: 11
+// };
 
-const MONTHSTOINT = {
-  jan: 0,
-  feb: 1,
-  mar: 2,
-  apr: 3,
-  may: 4,
-  jun: 5,
-  jul: 6,
-  aug: 7,
-  sept: 8,
-  oct: 9,
-  nov: 10,
-  dec: 11,
-  january: 0,
-  february: 1,
-  march: 2,
-  april: 3,
-  may: 4,
-  june: 5,
-  july: 6,
-  august: 7,
-  september: 8,
-  october: 9,
-  november: 10,
-  december: 11
-};
+// Listeners
+window.addEventListener("load", renderIframe);
+document.body.addEventListener("click", processClickEvent, true);
+
+function renderIframe() {
+  const isGoogleStockPage = financialSummaryElement() !== null;
+  if (isGoogleStockPage) {
+    console.log("Page loaded. Rendering iframe");
+    let iframe = document.createElement("iframe");
+    iframe.id = IFRAMEID;
+    iframe.src = chrome.extension.getURL("index.html");
+    iframe.style.display = "none";
+    document.body.append(iframe);
+  }
+}
+
+chrome.runtime.onMessage.addListener(function(request, sender, senderResponse) {
+  if (request.action === "browserActionClicked") {
+    toggleIframe();
+  }
+});
 
 function hasClickedChart(mouseEvent) {
   // Checks if clicked on chart
@@ -186,30 +208,11 @@ function toggleIframe() {
 
 function sendMessage(company, dateStart, dateEnd = null) {
   chrome.runtime.sendMessage({
-    company: company,
-    dateStart: dateStart,
-    dateEnd: dateEnd
+    action: "chartClicked",
+    data: {
+      company: company,
+      dateStart: dateStart,
+      dateEnd: dateEnd
+    }
   });
 }
-
-document.body.addEventListener("click", processClickEvent, true);
-
-function renderIframe() {
-  const isGoogleStockPage = financialSummaryElement() !== null;
-  if (isGoogleStockPage) {
-    console.log("Page loaded. Rendering iframe");
-    let iframe = document.createElement("iframe");
-    iframe.id = IFRAMEID;
-    iframe.src = chrome.extension.getURL("index.html");
-    iframe.style.display = "none";
-    document.body.append(iframe);
-  }
-}
-
-window.addEventListener("load", renderIframe);
-
-chrome.runtime.onMessage.addListener(function(request, sender, senderResponse) {
-  if (request.message === "browser-clicked") {
-    toggleIframe();
-  }
-});
