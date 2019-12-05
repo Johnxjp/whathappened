@@ -15,7 +15,7 @@ function googleURL(
   if (dateEnd !== null) {
     dateEndString = dateEnd.toLocaleDateString(locale);
   }
-  return `${baseURL}/search?q=${query}&tbs=cdr:1,cd_min:${dateStartString},cd_max:${dateEndString},sbd:1&tbm=nws&source=lnt`;
+  return `${baseURL}/search?q="${query}"&tbs=cdr:1,cd_min:${dateStartString},cd_max:${dateEndString},sbd:1&tbm=nws&source=lnt`;
 }
 
 async function fetchNews(url) {
