@@ -104,7 +104,10 @@ class GoogleChartInteractor {
 
   getNews(financeElement) {
     // Will send a message to the background containing company and date
-    const company = extractCompanyName(financeElement);
+    let company = extractCompanyName(financeElement);
+    company = processName(company);
+
+    const ticker = extractCompanyTicker(financeElement);
     const selectedTimePeriod = financeElement.getElementsByClassName(
       "QiGJYb fw-ch-sel"
     )[0].textContent;
@@ -137,7 +140,12 @@ class GoogleChartInteractor {
         parsedHoverCard.dateEnd
       )
     ) {
-      sendMessage(company, parsedHoverCard.dateStart, parsedHoverCard.dateEnd);
+      sendMessage(
+        company,
+        ticker,
+        parsedHoverCard.dateStart,
+        parsedHoverCard.dateEnd
+      );
     }
     showIframe();
   }
@@ -171,14 +179,35 @@ function renderIframe() {
   }
 }
 
-function extractCompanyName(element) {
+function extractCompanyName(summaryElement) {
   // Returns the company name
-  const spanClass = "vk_bk";
-  const spanElements = element.getElementsByClassName(spanClass);
-  if (spanElements.length === 0) {
+  const elements = summaryElement.getElementsByClassName("vk_bk");
+  if (elements.length === 0) {
     return "";
   }
-  return spanElements[0].textContent;
+  return elements[0].textContent;
+}
+
+function extractCompanyTicker(summaryElement) {
+  const elements = summaryElement.getElementsByClassName("HfMth");
+  if (elements.length === 0) {
+    return "";
+  }
+  return elements[0].textContent;
+}
+
+function processName(companyName) {
+  // Simple split for now
+  const match = companyName.match(/class\W?\s?\w\s/i);
+  if (match !== null) {
+    const index = match.index;
+    companyName = companyName.slice(0, index);
+    // Horrible code - change
+    while (!companyName[companyName.length - 1].match(/^[a-zA-Z]+$/i)) {
+      companyName = companyName.slice(0, companyName.length);
+    }
+  }
+  return companyName;
 }
 
 function formatDateObject(dateText, today, timePeriod) {
@@ -257,11 +286,12 @@ function toggleIframe() {
   }
 }
 
-function sendMessage(company, dateStart, dateEnd = null) {
+function sendMessage(company, ticker, dateStart, dateEnd = null) {
   chrome.runtime.sendMessage({
     action: "chartClicked",
     data: {
       company: company,
+      ticker: ticker,
       dateStart: dateStart,
       dateEnd: dateEnd
     }
