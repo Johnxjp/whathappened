@@ -1,6 +1,7 @@
 /* global chrome */
 import React from "react";
 import getGoogleNews from "./googleNews.js";
+import "./NewsViewer.css";
 
 class NewsViewer extends React.Component {
   constructor(props) {
@@ -30,7 +31,7 @@ class NewsViewer extends React.Component {
         console.log(news);
         this.setState({ news: news, loading: false });
       })
-      .catch(err => this.setState({ news: [], loading: false }));
+      .catch(() => this.setState({ news: [], loading: false }));
   }
 
   renderNews() {
@@ -45,12 +46,17 @@ class NewsViewer extends React.Component {
 
     return (
       <>
-        <p>Enjoy the news</p>
+        <h3>Enjoy the News</h3>
         <ol>
           {news.map(item => (
             <li key={item.heading}>
-              [{item.source}: {item.time}]:{" "}
-              <a href={item.link}>{item.heading}</a>
+              <a href={item.link} className="news-heading-link">
+                {item.heading}
+                <span className="news-item-date-source-text">
+                  {" "}
+                  [{item.source}: {item.time}]
+                </span>
+              </a>
             </li>
           ))}
         </ol>
