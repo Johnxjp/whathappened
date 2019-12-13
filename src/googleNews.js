@@ -12,7 +12,10 @@ function googleURL(
   // Not sure how to use the page information yet
   // use regex with global modifier to replace all occurences of " " with "+"
   // to be able to pass as query to url
-  let query = `"${company.replace(/ /g, "+")}"+${ticker}`;
+  let query = `"${company.replace(/ /g, "+")}"+${ticker.replace(
+    / /g,
+    "+"
+  )}+stock`;
   const dateStartString = dateStart.toLocaleDateString(locale);
   let dateEndString = dateStartString;
   if (dateEnd !== null) {

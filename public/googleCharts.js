@@ -120,19 +120,6 @@ class GoogleChartInteractor {
       selectedTimePeriod,
       currentChartTime
     );
-    console.log(
-      "Company",
-      company,
-      "date start",
-      parsedHoverCard.dateStart,
-      "date end",
-      parsedHoverCard.dateEnd,
-      "Price Change",
-      parsedHoverCard.priceChange,
-      "Percent change",
-      parsedHoverCard.percentChange
-    );
-
     if (
       this.isValidHoverCardText(
         parsedHoverCard.priceChange,

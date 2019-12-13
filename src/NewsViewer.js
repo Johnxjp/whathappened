@@ -23,6 +23,7 @@ class NewsViewer extends React.Component {
   processMessage(request, sender, senderResponse) {
     console.log("React: request received", request);
     this.setState({ loading: true });
+    console.log(request.data);
     let { company, ticker, dateStart, dateEnd } = request.data;
     dateStart = new Date(dateStart);
     dateEnd = dateEnd === null ? null : new Date(dateEnd);
