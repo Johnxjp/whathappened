@@ -10,4 +10,5 @@
   position: fixed !important;
   border-width: 0px;
   background-color: #201d1e;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.49);
 }
