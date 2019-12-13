@@ -1,10 +1,9 @@
 body {
-  margin: 0;
+  margin: 1em;
   font-family: Soleil, "Helvetica Neue", "Lucida Grande", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
   color: white;
   font-style: italic;
   font-size: 14px;
-  padding-left: 10px;
 }
