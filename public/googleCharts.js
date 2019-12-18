@@ -5,253 +5,267 @@
 
 // constants
 const IFRAMEID = "what-happened-iframe-id";
+const HOVERCARDCLASS = "knowledge-finance-wholepage-chart__hover-card";
+const CHARTCLASS = "knowledge-finance-wholepage-chart__fw-uch";
+const FINANCEELEMENTID = "knowledge-finance-wholepage__entity-summary";
+const COMPANYCLASS = "vk_bk";
+const TICKERCLASS = "HfMth";
+const TIMEPERIODCLASS = "QiGJYb fw-ch-sel";
 
 // Listeners
-window.addEventListener("load", renderIframe);
+window.addEventListener("load", () => {
+  var element = getFinancialSummaryElement();
+  if (element !== null) {
+    console.log("Finance chart page detected");
+    const interactor = new GoogleChartInteractor(element);
+    interactor.addChartListeners();
+    renderIframe();
+  }
+});
 
 class GoogleChartInteractor {
-  constructor() {
-    this.addChartListeners();
-    this.clickedChart = false;
-    this.hoverCardText = "";
+  constructor(financeElement) {
+    this.financeElement = financeElement;
+    this.chartHasBeenClicked = false;
+    this.selectionRangeText = "";
   }
 
   addChartListeners() {
-    var chartElement = financialSummaryElement();
-    if (chartElement !== null) {
-      chartElement.addEventListener("mousedown", event => {
-        this.hasClickedChart(event);
-        this.hoverCardText = "";
-      });
-      chartElement.addEventListener("mouseup", () => {
-        console.log(this.hoverCardText);
-        if (this.clickedChart && this.hoverCardText !== "") {
-          this.getNews(chartElement);
-        }
-        this.clickedChart = false;
-      });
-
-      chartElement.addEventListener("mousemove", () => {
-        if (this.clickedChart) {
-          let hoverCard = document.body.querySelector(
-            ".knowledge-finance-wholepage-chart__hover-card"
-          );
-          this.hoverCardText = hoverCard.textContent;
-        }
-      });
-    }
-  }
-
-  hasClickedChart(mouseEvent) {
-    // Checks if clicked on chart. Cannot attach a click listener to chart
-    // directly because chart changes everytime new date is selected
-    const paths = mouseEvent.path;
-    const chartClass = "knowledge-finance-wholepage-chart__fw-uch";
-    for (let element of paths) {
-      // sometimes not string
-      if (
-        typeof element.className === "string" &&
-        element.className.includes(chartClass)
-      ) {
-        this.clickedChart = true;
-        return;
-      }
-    }
-    this.clickedChart = false;
-  }
-
-  isValidHoverCardText(priceChange, dateStart, dateEnd) {
-    const hasPriceChanged = priceChange !== 0.0;
-    const isValidDates = dateStart !== dateEnd;
-    return isValidDates && hasPriceChanged;
-  }
-
-  parseHoverCardText(text, timePeriod, currentChartTime) {
-    // Returns all the desired info from the hovercard text
-    // Todo: Get Price Start and price end using mouse up information
-    let parsedObject = {
-      priceChange: 0.0,
-      percentChange: 0.0,
-      dateStart: null,
-      dateEnd: null
-    };
-    const index = text.indexOf(")");
-    if (index === -1) {
-      return parsedObject;
-    }
-
-    let priceText = text.slice(0, index + 1).trim();
-    let dateText = text.slice(index + 1).trim();
-    while (!dateText[0].match(/^[a-zA-Z0-9]+$/i)) {
-      dateText = dateText.slice(1);
-    }
-
-    let [priceChange, percentChange] = priceText.split(" ");
-    priceChange = parseFloat(priceChange);
-    percentChange = parseFloat(percentChange.slice(1, -1));
-
-    let [dateStart, dateEnd] = extractDateRange(
-      dateText,
-      timePeriod,
-      currentChartTime
+    this.financeElement.addEventListener("mousedown", event =>
+      this.processMouseDown(event)
     );
-    parsedObject.priceChange = priceChange;
-    parsedObject.percentChange = percentChange;
-    parsedObject.dateStart = dateStart;
-    parsedObject.dateEnd = dateEnd;
-    return parsedObject;
+    this.financeElement.addEventListener("mousemove", () =>
+      this.processMouseMove()
+    );
+    this.financeElement.addEventListener("mouseup", () =>
+      this.processMouseUp()
+    );
   }
 
-  getNews(financeElement) {
-    // Will send a message to the background containing company and date
-    let company = extractCompanyName(financeElement);
-    company = processName(company);
+  processMouseDown(event) {
+    this.chartHasBeenClicked = wasChartClicked(event);
+    this.selectionRangeText = "";
+  }
 
-    const ticker = extractCompanyTicker(financeElement);
-    const selectedTimePeriod = financeElement.getElementsByClassName(
-      "QiGJYb fw-ch-sel"
-    )[0].textContent;
+  processMouseMove() {
+    if (this.chartHasBeenClicked) {
+      let hoverCardElement = this.financeElement.getElementsByClassName(
+        HOVERCARDCLASS
+      )[0];
+      this.selectionRangeText = hoverCardElement.textContent;
+    }
+  }
 
-    const currentChartTime = getCurrentChartTime(financeElement);
-    console.log("Most recent market activity", currentChartTime);
-
-    const parsedHoverCard = this.parseHoverCardText(
-      this.hoverCardText,
-      selectedTimePeriod,
-      currentChartTime
-    );
-    if (
-      this.isValidHoverCardText(
-        parsedHoverCard.priceChange,
-        parsedHoverCard.dateStart,
-        parsedHoverCard.dateEnd
-      )
-    ) {
-      sendMessage(
-        company,
-        ticker,
-        parsedHoverCard.dateStart,
-        parsedHoverCard.dateEnd
+  processMouseUp() {
+    if (this.chartHasBeenClicked && this.selectionRangeText !== "") {
+      const financeElement = this.financeElement;
+      const selectionRangeText = this.selectionRangeText;
+      // from finance element
+      const company = processName(extractCompanyName(financeElement));
+      const ticker = extractTicker(financeElement);
+      const timePeriod = extractTimePeriod(financeElement);
+      const chartTime = getCurrentChartTime(financeElement);
+      // From hover card text
+      const priceChange = extractPriceChange(selectionRangeText);
+      // const percentChange = extractPercentChange(selectionRangeText);
+      const [dateStart, dateEnd] = extractDateRange(
+        selectionRangeText,
+        timePeriod,
+        chartTime
       );
+      console.table({
+        selectionText: this.selectionRangeText,
+        company: company,
+        ticker: ticker,
+        timePeriod: timePeriod,
+        chartTime: chartTime.toString(),
+        priceChange: priceChange,
+        dateStart: dateStart === null ? "null" : dateStart.toString(),
+        dateEnd: dateEnd === null ? "null" : dateEnd.toString()
+      });
+
+      if (isValidSelectionRange(priceChange, dateStart, dateEnd)) {
+        sendMessage(company, ticker, dateStart, dateEnd);
+      }
+      // Adjust Iframe so it displays invalid range for feedback
+      showIframe();
     }
-    showIframe();
+    this.chartHasBeenClicked = false;
   }
 }
 
-function extractDateRange(dateText, chartTimePeriod, currentChartTime) {
-  let [dateStart, dateEnd] = dateText.split("-");
-  dateStart = formatDateObject(dateStart, currentChartTime, chartTimePeriod);
-  if (dateEnd === undefined) {
-    dateEnd = null;
-  } else {
-    dateEnd = formatDateObject(dateEnd, currentChartTime, chartTimePeriod);
+function sendMessage(company, ticker, dateStart, dateEnd = null) {
+  chrome.runtime.sendMessage({
+    action: "chartClicked",
+    data: {
+      company: company,
+      ticker: ticker,
+      dateStart: dateStart,
+      dateEnd: dateEnd
+    }
+  });
+}
+
+function wasChartClicked(event) {
+  // Checks if clicked on chart. Cannot attach a click listener to chart
+  // directly because chart changes everytime new date is selected
+  let paths = event.path;
+  for (let element of paths) {
+    if (isChartElement(element)) return true;
   }
+  return false;
+}
+
+function isChartElement(element) {
+  // some class names are not a string so do this check first
+  return (
+    typeof element.className === "string" &&
+    element.className.includes(CHARTCLASS)
+  );
+}
+
+function isValidSelectionRange(priceChange, dateStart, dateEnd) {
+  const priceHasChanged = priceChange !== 0.0;
+  const startEqualsEnd = dateStart === dateEnd;
+  return priceHasChanged && !startEqualsEnd;
+}
+
+function extractDateRange(text, timePeriod, chartTime) {
+  // Format of text +0.55 (0.37%)  ‎Fri, 13 Dec 15:00-Mon, 16 Dec 11:00
+  const dateTimeFormat = timePeriodRegex(timePeriod);
+  const dates = text.match(dateTimeFormat);
+  if (dates === null) {
+    return [new Date(), null];
+  }
+
+  console.log("dates", dates);
+  let dateStart = null;
+  let dateEnd = null;
+  if (dates.length === 1) {
+    dateStart = dates[0];
+    dateEnd = dateStart;
+  } else {
+    [dateStart, dateEnd] = dates;
+  }
+  dateEnd = formatDateObject(dateEnd, timePeriod, chartTime);
+  dateStart = formatDateObject(dateStart, timePeriod, chartTime);
   return [dateStart, dateEnd];
 }
 
-var chartInteractor = null;
-window.addEventListener("load", () => {
-  chartInteractor = new GoogleChartInteractor();
-});
-
-function renderIframe() {
-  const isGoogleStockPage = financialSummaryElement() !== null;
-  if (isGoogleStockPage) {
-    console.log("Page loaded. Rendering iframe");
-    let iframe = document.createElement("iframe");
-    iframe.id = IFRAMEID;
-    iframe.src = chrome.extension.getURL("index.html");
-    iframe.style.display = "none";
-    document.body.append(iframe);
+function timePeriodRegex(timePeriod) {
+  switch (timePeriod) {
+    case "1 day":
+      return /\d{2}:\d{2}( \d{4})?/g;
+    case "5 days":
+      return /\w{3,4}, \d{1,2} \w{3,4} \d{2}:\d{2}( \d{4})?/g;
+    case "1 month":
+    case "6 months":
+    case "YTD":
+      return /\w{3,4}, \d{1,2} \w{3,4}( \d{4})?/g;
+    case "1 year":
+    case "5 years":
+    case "Max":
+      return /\d{1,2} \w{3,4} \d{4}/g;
+    default:
+      return /\w{3,4}, \d{1,2} \w{3,4}( \d{4})?/g;
   }
 }
 
-function extractCompanyName(summaryElement) {
+function extractCompanyName(financeElement) {
   // Returns the company name
-  const elements = summaryElement.getElementsByClassName("vk_bk");
-  if (elements.length === 0) {
-    return "";
-  }
-  return elements[0].textContent;
+  const element = financeElement.getElementsByClassName(COMPANYCLASS);
+  if (element.length === 0) return "";
+  return element[0].textContent;
 }
 
-function extractCompanyTicker(summaryElement) {
-  const elements = summaryElement.getElementsByClassName("HfMth");
-  if (elements.length === 0) {
-    return "";
-  }
-  return elements[0].textContent;
+function extractTicker(financeElement) {
+  const element = financeElement.getElementsByClassName(TICKERCLASS);
+  if (element.length === 0) return "";
+  return element[0].textContent;
+}
+
+function extractTimePeriod(financeElement) {
+  const element = financeElement.getElementsByClassName(TIMEPERIODCLASS);
+  if (element.length === 0) return "";
+  return element[0].textContent;
+}
+
+function extractPriceChange(text) {
+  // Format of text is +16.38 (12.48%)  ‎Wed, 6 Nov-Mon, 18 Nov
+  // or +16.38 (12.48%)  10:15-10:30
+  const priceChange = text.match(/[+|-]\d{1,2}.\d{2}/);
+  if (priceChange === null) return 0.0;
+  return parseFloat(priceChange[0]);
+}
+
+function extractPercentChange(text) {
+  // Format of text is +16.38 (12.48%)  ‎Wed, 6 Nov-Mon, 18 Nov
+  // or +16.38 (12.48%)  10:15-10:30
+  const percentChange = text.match(/\d{1,2}.\d{2}\%/);
+  if (percentChange === null) return 0.0;
+  return parseFloat(percentChange[0]);
 }
 
 function processName(companyName) {
-  // Simple split for now
-  const match = companyName.match(/class\W?\s?\w\s/i);
-  if (match !== null) {
-    const index = match.index;
-    companyName = companyName.slice(0, index);
-    // Horrible code - change
-    while (!companyName[companyName.length - 1].match(/^[a-zA-Z]+$/i)) {
-      companyName = companyName.slice(0, companyName.length);
-    }
-  }
-  return companyName;
+  // Removes reference to class A / B / C shares. Tries to shorten stock.
+  // Simple split for now.
+  const name = companyName.match(/class\W?\s?\w\s/i);
+  if (name === null) return companyName;
+  companyName = companyName[0].slice(0, match.index);
+  return companyName.replace(/\W+$/, "");
 }
 
-function formatDateObject(dateText, today, timePeriod) {
+function formatDateObject(dateText, timePeriod, chartTime) {
   // Bit complex because hovercard not always the same format. Depends on the
   // age of the stock
+  if (timePeriod == "1 day") {
+    // Checks if the dateText can be formatted into a Date.
+    // This requires the year
+    // Not sure what happens on say 1st of Jan / 1st of month
+    const dateMatch = dateText.match(/\d{1,2}:\d{2}/);
+    if (dateMatch === null) return null;
 
-  // TODO: Invalid start date on 1 day
-  switch (timePeriod) {
-    case "1 day":
-      // Checks if the dateText can be formatted into a Date.
-      // This requires the year
-      if (isNaN(Date.parse(dateText))) {
-        let [hour, minute] = dateText.split(":");
-        return new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate(),
-          hour,
-          minute
-        );
-      } else {
-        return new Date(Date.parse(dateText));
-      }
-
-    default:
-      var date = new Date(Date.parse(dateText));
-      // searches for year string
-      const textContainsYear = dateText.search(/\d{4}/);
-      if (textContainsYear === -1) {
-        date.setFullYear(today.getFullYear());
-      }
-      return date;
+    const [hour, minute] = dateMatch[0].split(":");
+    const date = chartTime.getDate();
+    const month = chartTime.getMonth();
+    const year = chartTime.getFullYear();
+    return new Date(year, month, date, hour, minute);
   }
+  let date = new Date(Date.parse(dateText));
+  const textContainsYear = dateText.match(/\d{4}/) === null;
+  if (textContainsYear) date.setFullYear(chartTime.getFullYear());
+  return date;
 }
 
-function getCurrentChartTime(chartElement) {
+function getCurrentChartTime(financeElement) {
   // Gets the latest trading time shown in the chart
   // This is usually in the first section of the chart
-  const infoText = chartElement.getElementsByTagName("g-card-section")[0]
+  const infoText = financeElement.getElementsByTagName("g-card-section")[0]
     .textContent;
-
   // Searches for patterns like 1 Nov, 16:15
-  var regex = /\d+ \w{3,4}, \d\d:\d\d/i;
-  var stringDate = infoText.match(regex);
-  if (stringDate !== null) {
-    stringDate = stringDate[0];
-    let today = new Date();
-    let activityDay = new Date(Date.parse(stringDate));
-    activityDay.setFullYear(today.getFullYear());
-    return activityDay;
+  let stringDate = infoText.match(/\d+ \w{3,4}, \d\d:\d\d/);
+  if (stringDate === null || infoText.length === 0) {
+    return new Date(); // current time
   }
-  return new Date();
+  stringDate = stringDate[0];
+  const currentYear = new Date().getFullYear();
+  let activityDate = new Date(Date.parse(stringDate));
+  activityDate.setFullYear(currentYear); // default sets year to 2001
+  return activityDate;
 }
 
-function financialSummaryElement() {
-  const elementId = "knowledge-finance-wholepage__entity-summary";
-  return document.getElementById(elementId);
+function getFinancialSummaryElement() {
+  return document.getElementById(FINANCEELEMENTID);
+}
+
+function renderIframe() {
+  console.log("Page loaded. Rendering iframe");
+  const iframe = document.createElement("iframe");
+  iframe.id = IFRAMEID;
+  // index.html needs to be a web accessible resource
+  iframe.src = chrome.extension.getURL("index.html");
+  iframe.style.display = "none";
+  document.body.append(iframe);
 }
 
 function showIframe() {
@@ -267,22 +281,12 @@ function hideIframe() {
 function toggleIframe() {
   let iframe = document.getElementById(IFRAMEID);
   if (iframe.style.display === "none") {
+    // Show
     iframe.style.setProperty("display", "block", "important");
   } else {
+    // hide
     iframe.style.setProperty("display", "none", "important");
   }
-}
-
-function sendMessage(company, ticker, dateStart, dateEnd = null) {
-  chrome.runtime.sendMessage({
-    action: "chartClicked",
-    data: {
-      company: company,
-      ticker: ticker,
-      dateStart: dateStart,
-      dateEnd: dateEnd
-    }
-  });
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, senderResponse) {
