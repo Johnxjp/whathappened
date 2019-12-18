@@ -4,19 +4,18 @@
 /* global chrome */
 
 // constants
-const IFRAMEID = "what-happened-iframe-id";
-const HOVERCARDCLASS = "knowledge-finance-wholepage-chart__hover-card";
-const CHARTCLASS = "knowledge-finance-wholepage-chart__fw-uch";
-const FINANCEELEMENTID = "knowledge-finance-wholepage__entity-summary";
-const COMPANYCLASS = "vk_bk";
-const TICKERCLASS = "HfMth";
-const TIMEPERIODCLASS = "QiGJYb fw-ch-sel";
+const IFRAME_ID = "what-happened-iframe-id";
+const HOVER_CARD_CLASS = "knowledge-finance-wholepage-chart__hover-card";
+const CHART_CLASS = "knowledge-finance-wholepage-chart__fw-uch";
+const FINANCE_ELEMENT_ID = "knowledge-finance-wholepage__entity-summary";
+const COMPANY_CLASS = "vk_bk";
+const TICKER_CLASS = "HfMth";
+const TIME_PERIOD_CLASS = "QiGJYb fw-ch-sel";
 
 // Listeners
 window.addEventListener("load", () => {
   var element = getFinancialSummaryElement();
   if (element !== null) {
-    console.log("Finance chart page detected");
     const interactor = new GoogleChartInteractor(element);
     interactor.addChartListeners();
     renderIframe();
@@ -50,7 +49,7 @@ class GoogleChartInteractor {
   processMouseMove() {
     if (this.chartHasBeenClicked) {
       let hoverCardElement = this.financeElement.getElementsByClassName(
-        HOVERCARDCLASS
+        HOVER_CARD_CLASS
       )[0];
       this.selectionRangeText = hoverCardElement.textContent;
     }
@@ -58,34 +57,26 @@ class GoogleChartInteractor {
 
   processMouseUp() {
     if (this.chartHasBeenClicked && this.selectionRangeText !== "") {
-      const financeElement = this.financeElement;
-      const selectionRangeText = this.selectionRangeText;
-      // from finance element
-      const company = processName(extractCompanyName(financeElement));
-      const ticker = extractTicker(financeElement);
-      const timePeriod = extractTimePeriod(financeElement);
-      const chartTime = getCurrentChartTime(financeElement);
-      // From hover card text
-      const priceChange = extractPriceChange(selectionRangeText);
-      // const percentChange = extractPercentChange(selectionRangeText);
-      const [dateStart, dateEnd] = extractDateRange(
-        selectionRangeText,
-        timePeriod,
-        chartTime
+      const chartInfo = extractChartInfo(
+        this.financeElement,
+        this.selectionRangeText
       );
-      console.table({
-        selectionText: this.selectionRangeText,
-        company: company,
-        ticker: ticker,
-        timePeriod: timePeriod,
-        chartTime: chartTime.toString(),
-        priceChange: priceChange,
-        dateStart: dateStart === null ? "null" : dateStart.toString(),
-        dateEnd: dateEnd === null ? "null" : dateEnd.toString()
-      });
+      console.log(this.selectionRangeText);
+      console.table(chartInfo);
 
-      if (isValidSelectionRange(priceChange, dateStart, dateEnd)) {
-        sendMessage(company, ticker, dateStart, dateEnd);
+      if (
+        isValidSelectionRange(
+          chartInfo.priceChange,
+          chartInfo.dateStart,
+          chartInfo.dateEnd
+        )
+      ) {
+        sendDataToFetchNews(
+          chartInfo.company,
+          chartInfo.ticker,
+          chartInfo.dateStart,
+          chartInfo.dateEnd
+        );
       }
       // Adjust Iframe so it displays invalid range for feedback
       showIframe();
@@ -94,7 +85,7 @@ class GoogleChartInteractor {
   }
 }
 
-function sendMessage(company, ticker, dateStart, dateEnd = null) {
+function sendDataToFetchNews(company, ticker, dateStart, dateEnd = null) {
   chrome.runtime.sendMessage({
     action: "chartClicked",
     data: {
@@ -109,18 +100,15 @@ function sendMessage(company, ticker, dateStart, dateEnd = null) {
 function wasChartClicked(event) {
   // Checks if clicked on chart. Cannot attach a click listener to chart
   // directly because chart changes everytime new date is selected
-  let paths = event.path;
-  for (let element of paths) {
-    if (isChartElement(element)) return true;
-  }
-  return false;
+  const paths = event.path;
+  return paths.find(isChartElement) !== undefined;
 }
 
 function isChartElement(element) {
   // some class names are not a string so do this check first
   return (
     typeof element.className === "string" &&
-    element.className.includes(CHARTCLASS)
+    element.className.includes(CHART_CLASS)
   );
 }
 
@@ -130,12 +118,38 @@ function isValidSelectionRange(priceChange, dateStart, dateEnd) {
   return priceHasChanged && !startEqualsEnd;
 }
 
+function extractChartInfo(financeElement, selectionRangeText) {
+  // from finance element
+  const company = processName(extractCompanyName(financeElement));
+  const ticker = extractTicker(financeElement);
+  const timePeriod = extractTimePeriod(financeElement);
+  const chartTime = getCurrentChartTime(financeElement);
+  // From hover card text
+  const priceChange = extractPriceChange(selectionRangeText);
+  // const percentChange = extractPercentChange(selectionRangeText);
+  const [dateStart, dateEnd] = extractDateRange(
+    selectionRangeText,
+    timePeriod,
+    chartTime
+  );
+  return {
+    company,
+    ticker,
+    timePeriod,
+    chartTime,
+    priceChange,
+    dateStart,
+    dateEnd
+  };
+}
+
 function extractDateRange(text, timePeriod, chartTime) {
   // Format of text +0.55 (0.37%)  ‎Fri, 13 Dec 15:00-Mon, 16 Dec 11:00
   const dateTimeFormat = timePeriodRegex(timePeriod);
   const dates = text.match(dateTimeFormat);
   if (dates === null) {
-    return [new Date(), null];
+    const now = new Date();
+    return [now, now];
   }
 
   console.log("dates", dates);
@@ -147,8 +161,8 @@ function extractDateRange(text, timePeriod, chartTime) {
   } else {
     [dateStart, dateEnd] = dates;
   }
-  dateEnd = formatDateObject(dateEnd, timePeriod, chartTime);
-  dateStart = formatDateObject(dateStart, timePeriod, chartTime);
+  dateStart = makeDateObject(dateStart, timePeriod, chartTime);
+  dateEnd = makeDateObject(dateEnd, timePeriod, chartTime);
   return [dateStart, dateEnd];
 }
 
@@ -173,19 +187,21 @@ function timePeriodRegex(timePeriod) {
 
 function extractCompanyName(financeElement) {
   // Returns the company name
-  const element = financeElement.getElementsByClassName(COMPANYCLASS);
+  const element = financeElement.getElementsByClassName(COMPANY_CLASS);
   if (element.length === 0) return "";
   return element[0].textContent;
 }
 
 function extractTicker(financeElement) {
-  const element = financeElement.getElementsByClassName(TICKERCLASS);
+  const element = financeElement.getElementsByClassName(TICKER_CLASS);
   if (element.length === 0) return "";
-  return element[0].textContent;
+  let ticker = element[0].textContent;
+  ticker = ticker.split(":")[1].trim();
+  return ticker;
 }
 
 function extractTimePeriod(financeElement) {
-  const element = financeElement.getElementsByClassName(TIMEPERIODCLASS);
+  const element = financeElement.getElementsByClassName(TIME_PERIOD_CLASS);
   if (element.length === 0) return "";
   return element[0].textContent;
 }
@@ -211,29 +227,27 @@ function processName(companyName) {
   // Simple split for now.
   const name = companyName.match(/class\W?\s?\w\s/i);
   if (name === null) return companyName;
-  companyName = companyName[0].slice(0, match.index);
+  companyName = companyName[0].slice(0, name.index);
   return companyName.replace(/\W+$/, "");
 }
 
-function formatDateObject(dateText, timePeriod, chartTime) {
+function makeDateObject(dateText, timePeriod, chartTime) {
   // Bit complex because hovercard not always the same format. Depends on the
   // age of the stock
-  if (timePeriod == "1 day") {
-    // Checks if the dateText can be formatted into a Date.
-    // This requires the year
+  if (timePeriod === "1 day") {
+    // Checks if the dateText can be formatted into a Date. This requires the year
     // Not sure what happens on say 1st of Jan / 1st of month
-    const dateMatch = dateText.match(/\d{1,2}:\d{2}/);
+    const dateMatch = dateText.match(/\d{2}:\d{2}/);
     if (dateMatch === null) return null;
-
     const [hour, minute] = dateMatch[0].split(":");
-    const date = chartTime.getDate();
-    const month = chartTime.getMonth();
-    const year = chartTime.getFullYear();
-    return new Date(year, month, date, hour, minute);
+    const date = new Date(Date.parse(chartTime));
+    date.setHours(hour);
+    date.setMinutes(minute);
+    return date;
   }
-  let date = new Date(Date.parse(dateText));
-  const textContainsYear = dateText.match(/\d{4}/) === null;
-  if (textContainsYear) date.setFullYear(chartTime.getFullYear());
+  const date = new Date(Date.parse(dateText));
+  const textContainsYear = dateText.match(/\d{4}/) !== null;
+  if (!textContainsYear) date.setFullYear(chartTime.getFullYear());
   return date;
 }
 
@@ -243,25 +257,21 @@ function getCurrentChartTime(financeElement) {
   const infoText = financeElement.getElementsByTagName("g-card-section")[0]
     .textContent;
   // Searches for patterns like 1 Nov, 16:15
-  let stringDate = infoText.match(/\d+ \w{3,4}, \d\d:\d\d/);
-  if (stringDate === null || infoText.length === 0) {
-    return new Date(); // current time
-  }
-  stringDate = stringDate[0];
+  const stringDate = infoText.match(/\d{1,2} \w{3,4}, \d{2}:\d{2}/);
+  if (stringDate === null) return new Date(); // current time
   const currentYear = new Date().getFullYear();
-  let activityDate = new Date(Date.parse(stringDate));
+  const activityDate = new Date(Date.parse(stringDate[0]));
   activityDate.setFullYear(currentYear); // default sets year to 2001
   return activityDate;
 }
 
 function getFinancialSummaryElement() {
-  return document.getElementById(FINANCEELEMENTID);
+  return document.getElementById(FINANCE_ELEMENT_ID);
 }
 
 function renderIframe() {
-  console.log("Page loaded. Rendering iframe");
   const iframe = document.createElement("iframe");
-  iframe.id = IFRAMEID;
+  iframe.id = IFRAME_ID;
   // index.html needs to be a web accessible resource
   iframe.src = chrome.extension.getURL("index.html");
   iframe.style.display = "none";
@@ -269,17 +279,17 @@ function renderIframe() {
 }
 
 function showIframe() {
-  let iframe = document.getElementById(IFRAMEID);
+  let iframe = document.getElementById(IFRAME_ID);
   iframe.style.display = "block";
 }
 
 function hideIframe() {
-  let iframe = document.getElementById(IFRAMEID);
+  let iframe = document.getElementById(IFRAME_ID);
   iframe.style.display = "none";
 }
 
 function toggleIframe() {
-  let iframe = document.getElementById(IFRAMEID);
+  let iframe = document.getElementById(IFRAME_ID);
   if (iframe.style.display === "none") {
     // Show
     iframe.style.setProperty("display", "block", "important");
