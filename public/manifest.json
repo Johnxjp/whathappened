@@ -10,9 +10,10 @@
       "matches": ["https://www.google.com/*"]
     }
   ],
+  "permissions": ["https://twitter.com/*"],
   "browser_action": {},
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["background.js", "twitter.js"],
     "persistent": false
   },
   "web_accessible_resources": ["index.html"]
