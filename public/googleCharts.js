@@ -209,7 +209,7 @@ function extractTimePeriod(financeElement) {
 function extractPriceChange(text) {
   // Format of text is +16.38 (12.48%)  ‎Wed, 6 Nov-Mon, 18 Nov
   // or +16.38 (12.48%)  10:15-10:30
-  const priceChange = text.match(/[+|-]\d{1,2}.\d{2}/);
+  const priceChange = text.match(/[+|-]\d+.\d{2}/);
   if (priceChange === null) return 0.0;
   return parseFloat(priceChange[0]);
 }
