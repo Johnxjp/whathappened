@@ -23,7 +23,7 @@ function buildSearchURL(
   min_likes = 1
 ) {
   // ticker currently unused for better search options
-  let query = `Uber stock OR shares`.replace(/ /g, "+");
+  let query = `${company} stock OR shares`.replace(/ /g, "+");
   if (dateEnd === null) {
     dateEnd = dateStart;
   }
@@ -56,43 +56,6 @@ async function fetchPageDOM(url) {
   }
 }
 
-// function extractTweet(tweetElement) {
-//   let user = "";
-//   let handle = "";
-//   let allText = tweetElement.textContent;
-//   [user, allText] = allText.split("·");
-//   [user, handle] = allText.split("@");
-//   handle = "@" + handle;
-//   const date = allText.match(/\w{3,4}\s\d{1,2},\s\d{4}/)[0];
-//   allText = allText.slice(date.length);
-//   return {
-//     user: user,
-//     handle: handle,
-//     date: date,
-//     content: allText,
-//     link: extractWebLink(tweetElement)
-//   };
-// }
-
-// function extractWebLink(tweetElement) {
-//   // assume the final link is what we want
-//   const aTags = tweetElement.getElementsByTagName("a");
-//   const finalLink = aTags[aTags.length - 1].href;
-//   if (finalLink.match("https://t.co") !== null) return finalLink;
-//   return null;
-// }
-
-// function getTimelineArticles(pageDOM) {
-//   console.log(pageDOM.getElementsByTagName("body")[0]);
-//   const section = pageDOM.getElementsByTagName("section")[0];
-//   console.log(section);
-//   const timeline = section.querySelector(
-//     "[aria-label='Timeline: Search timeline']"
-//   );
-//   const articles = timeline.getElementsByTagName("article");
-//   return articles;
-// }
-
 function getTweetsFromStreamTimeline(pageDOM, limit = 10) {
   // Every Tweet has a header, footer, some text and a drop down menu that
   // provides a link to the tweet. Some also have content like videos,
@@ -114,6 +77,7 @@ function parseTweets(tweetElement) {
   const account = tweetMain.getAttribute("data-name");
   const handle = tweetMain.getAttribute("data-screen-name");
   const tweetContent = tweetElement.querySelector("div.content").children;
+  console.log(account, tweetURL, tweetContent, handle);
   const [accountTwitterURL, date, text, sourceURL] = parseTweetContent(
     tweetContent
   );
@@ -129,12 +93,15 @@ function parseTweets(tweetElement) {
 }
 
 function parseTweetContent(tweetContent) {
+  const textElement = Array.from(tweetContent).filter(
+    item => item.className === "js-tweet-text-container"
+  )[0];
   const header = tweetContent[0];
   const accountURL =
     BASE_URL + header.querySelector(".account-group").getAttribute("href");
   let date = header.textContent.match(/\w{3,4} \d{1,2}/);
   date = date === null ? "" : date[0];
-  let [text, sourceURL] = parseTextElement(tweetContent[1]);
+  let [text, sourceURL] = parseTextElement(textElement);
   return [accountURL, date, text, sourceURL];
 }
 
@@ -146,12 +113,11 @@ function parseTextElement(textElement) {
   for (let tag of aTags) {
     if (tag.hasAttribute("data-expanded-url")) {
       sourceURL = tag.href;
-    }
-
-    if (tag.className !== "twitter-hashtag") {
-      text = text.replace(tag.textContent, "");
+      // Source URL is often added to text content
+      text = text.replace(tag.getAttribute("data-expanded-url"), "");
     }
   }
+  text = text.replace(/pic.twitter.com\/\w[A-Za-z0-9]*/g, "");
   return [text.trim(), sourceURL];
 }
 
@@ -170,9 +136,10 @@ async function getTweets({ company, ticker, dateStart, dateEnd }) {
 
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   console.log("Sender", sender, "Request", request);
-  if (request.action === "chartClicked") {
+  if (request.action === "getTweets") {
     getTweets(request.data)
-      .then(tweets => console.log(tweets))
-      .catch(err => console.log(err));
+      .then(tweets => response({ items: tweets, success: true }))
+      .catch(() => response({ success: false }));
   }
+  return true;
 });

@@ -1,3 +1,24 @@
+.tweet-item-date-source-text {
+  color: lightgray;
+  font-size: 12px;
+}
+
+.tweet-heading-link {
+  color: white;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 400;
+  display: block;
+}
+
+.tweet-heading-link:hover {
+  font-weight: bold;
+}
+
+.tweet-heading-link:visited {
+  all: inherit;
+}
+
 .news-item-date-source-text {
   color: lightgray;
 }
@@ -18,9 +39,12 @@
   all: inherit;
 }
 
-li {
+#news-item-list {
   margin-top: 5px;
-  margin-bottom: 5px;
+}
+
+#tweet-item-list {
+  margin-top: 10px;
 }
 
 ol {

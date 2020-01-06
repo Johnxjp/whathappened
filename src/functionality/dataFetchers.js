@@ -1,17 +1,40 @@
-// import validatedSources from "./constants";
+/* global chrome*/
+import { TwitterDataItem, NewsDataItem } from "./dataItem";
+const colloquialNames = require("../data/colloquial_names.json");
+
+export function fetchTweets({ company, ticker, dateStart, dateEnd }) {
+  company = colloquialNames[company] || company;
+  const messageData = {
+    action: "getTweets",
+    data: {
+      company: company,
+      ticker: ticker,
+      dateStart: dateStart,
+      dateEnd: dateEnd
+    }
+  };
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(messageData, response => {
+      if (response.success) {
+        const items = response.items.map(item => new TwitterDataItem(item));
+        resolve(items);
+      } else {
+        reject(new Error("Could not receive tweets"));
+      }
+    });
+  });
+}
 
 function buildSearchURL(
-  company,
-  ticker,
-  dateStart,
-  dateEnd = null,
+  { company, ticker, dateStart, dateEnd = null },
   baseURL = "https://www.google.com",
   locale = "en-US"
 ) {
   // use regex with global modifier to replace all occurences of " " with "+"
   // to be able to pass as query to url
-  let query = `"${company.replace(/ /g, "+")}"+`;
-  query += `"${ticker.replace(/ /g, "+")}"+stock`;
+  company = colloquialNames[company] || company;
+  let query = `intext:"${company.replace(/ /g, "+")}"+`;
+  query += `${ticker.replace(/ /g, "+")}+intext:(stock+OR+shares)`;
   const dateStartString = dateStart.toLocaleDateString(locale);
   let dateEndString = dateStartString;
   if (dateEnd !== null) {
@@ -20,7 +43,7 @@ function buildSearchURL(
   return `${baseURL}/search?q=${query}&tbs=cdr:1,cd_min:${dateStartString},cd_max:${dateEndString},sbd:1&tbm=nws&source=lnt`;
 }
 
-async function fetchNews(url) {
+async function fetchNewsHTML(url) {
   try {
     const response = await fetch(url);
     const pageHTML = await response.text();
@@ -33,20 +56,13 @@ async function fetchNews(url) {
   }
 }
 
-function newsItem(heading, source, time, link) {
-  this.heading = heading;
-  this.source = source;
-  this.time = time;
-  this.link = link;
-}
-
 function extractNewsItem(tag) {
   const parentDivSpans = tag.closest("div").getElementsByTagName("span");
   const source = parentDivSpans[0].innerText;
   const heading = tag.innerText;
   const link = tag.href;
   const timePosted = parentDivSpans[2].innerText;
-  return new newsItem(heading, source, timePosted, link);
+  return new NewsDataItem({ heading, source, timePosted, link });
 }
 
 function extractNewsItems(aTags) {
@@ -63,21 +79,21 @@ function extractNewsItems(aTags) {
   return newsItems;
 }
 
-async function getGoogleNews(company, ticker, dateStart, dateEnd = null) {
+export async function fetchNews(userQuery) {
   // Makes a fetch to get the news page and returns news elements. Returns promise
-  // TODO: Add ticker information
-  const url = buildSearchURL(company, ticker, dateStart, dateEnd);
-  console.log("URL to get", url);
-  const pageHTML = await fetchNews(url);
-  if (pageHTML === null) return [];
   let allNews = [];
+  if (Object.keys(userQuery).length === 0) {
+    return allNews;
+  }
+  const url = buildSearchURL(userQuery);
+  console.log("URL to get", url);
+  const pageHTML = await fetchNewsHTML(url);
+  if (pageHTML === null) return allNews;
+
   for (let newsCard of pageHTML.getElementsByClassName("g")) {
     const aTags = newsCard.getElementsByTagName("a");
     const newsItems = extractNewsItems(aTags);
-    // TODO: concat / extend in JS
     allNews = allNews.concat(newsItems);
   }
   return allNews;
 }
-
-export default getGoogleNews;

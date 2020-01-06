@@ -86,6 +86,7 @@ class GoogleChartInteractor {
 }
 
 function sendDataToFetchNews(company, ticker, dateStart, dateEnd = null) {
+  console.log("Sending data");
   chrome.runtime.sendMessage({
     action: "chartClicked",
     data: {
@@ -171,11 +172,11 @@ function timePeriodRegex(timePeriod) {
     case "1 day":
       return /\d{2}:\d{2}( \d{4})?/g;
     case "5 days":
-      return /\w{3,4}, \d{1,2} \w{3,4} \d{2}:\d{2}( \d{4})?/g;
+      return /\d{1,2} \w{3,4} \d{2}:\d{2}( \d{4})?/g;
     case "1 month":
     case "6 months":
     case "YTD":
-      return /\w{3,4}, \d{1,2} \w{3,4}( \d{4})?/g;
+      return /\d{1,2} \w{3,4}( \d{4})?/g;
     case "1 year":
     case "5 years":
     case "Max":
