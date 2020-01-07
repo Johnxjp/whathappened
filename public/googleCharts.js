@@ -81,6 +81,7 @@ class GoogleChartInteractor {
         sendDataToFetchNews(
           chartInfo.company,
           chartInfo.ticker,
+          chartInfo.priceChange,
           chartInfo.dateStart,
           chartInfo.dateEnd
         );
@@ -92,15 +93,22 @@ class GoogleChartInteractor {
   }
 }
 
-function sendDataToFetchNews(company, ticker, dateStart, dateEnd = null) {
+function sendDataToFetchNews(
+  company,
+  ticker,
+  priceChange,
+  dateStart,
+  dateEnd = null
+) {
   console.log("Sending data");
   chrome.runtime.sendMessage({
     action: "chartClicked",
     data: {
-      company: company,
-      ticker: ticker,
-      dateStart: dateStart,
-      dateEnd: dateEnd
+      company,
+      ticker,
+      dateStart,
+      dateEnd,
+      priceChange
     }
   });
 }

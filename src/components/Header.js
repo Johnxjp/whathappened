@@ -1,9 +1,8 @@
 /* global chrome*/
 import React from "react";
-import "./ViewerManager.css";
+import "./Header.css";
 
 function closeWindow() {
-  console.log("closing window");
   chrome.tabs.getCurrent(tab => {
     chrome.runtime.sendMessage({ action: "closeWindow", tabId: tab.id });
   });

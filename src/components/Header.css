@@ -1,0 +1,20 @@
+#what-happened-header {
+  margin-bottom: 0.5em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid white;
+}
+
+#what-happened-title {
+  font-size: small;
+  font-weight: lighter;
+}
+
+#close-button-icon {
+  height: 12px;
+}
+
+#close-button-icon:hover {
+  cursor: pointer;
+}

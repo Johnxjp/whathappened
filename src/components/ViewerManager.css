@@ -1,16 +1,18 @@
-#what-happened-header {
-  margin-bottom: 1em;
+#what-happened-viewer-manager-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid white;
+  justify-content: space-between;
 }
 
-#what-happened-title {
-  font-size: medium;
-  font-weight: lighter;
+#what-happened-viewer-manager-title {
+  margin: 0em;
+  font-size: large;
 }
 
-#close-button-icon {
-  height: 15px;
+button:hover {
+  cursor: pointer;
+}
+
+button:focus {
+  outline: 0;
 }

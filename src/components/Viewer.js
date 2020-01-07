@@ -53,12 +53,7 @@ class Viewer extends React.Component {
         </p>
       );
     }
-    return (
-      <>
-        <h3>Here's what we found on {this.props.userQuery.company}</h3>
-        <ol>{data.map(item => item.render())}</ol>
-      </>
-    );
+    return <ol>{data.map(item => item.render())}</ol>;
   }
 
   render() {

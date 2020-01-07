@@ -1,0 +1,23 @@
+#what-happened-summary {
+  margin-bottom: 0.5em;
+  border-bottom: solid 1px white;
+}
+
+#what-happened-summary-company {
+  font-size: larger;
+  margin-block-end: 0.1em;
+  margin-block-start: 0em;
+}
+
+#what-happened-summary-date-range {
+  color: lightgray;
+  margin-block-start: 0em;
+  font-size: smaller;
+  margin-block-end: 0.1em;
+}
+
+#what-happened-summary-price {
+  margin-block-start: 0em;
+  font-size: medium;
+  margin-block-end: 0.4em;
+}

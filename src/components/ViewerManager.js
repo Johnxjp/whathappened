@@ -1,51 +1,72 @@
-/*global chrome*/
-
 import React from "react";
 import Viewer from "./Viewer";
+import "./ViewerManager.css";
 import { fetchTweets, fetchNews } from "../functionality/dataFetchers";
-const colloquialNames = require("../data/colloquial_names.json");
 
 class ViewerManager extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      viewerName: "news",
-      userQuery: {}
+      viewerName: "news"
     };
-  }
-
-  componentDidMount() {
-    chrome.runtime.onMessage.addListener((request, sender, response) => {
-      if (request.action === "chartClicked") {
-        console.log("React: request received", request);
-        let { company, ticker, dateStart, dateEnd } = request.data;
-        // convert to date object from string
-        dateStart = new Date(dateStart);
-        dateEnd = dateEnd === null ? null : new Date(dateEnd);
-        company = colloquialNames[company] || company;
-        this.setState({ userQuery: { company, ticker, dateStart, dateEnd } });
-      }
-    });
   }
 
   onClick(viewerName) {
     this.setState({ viewerName: viewerName });
   }
 
+  buttonStyle(isSelected) {
+    const on = {
+      color: "darkorange",
+      fontWeight: "bold",
+      borderColor: "transparent",
+      borderBottom: "1px darkorange solid",
+      backgroundColor: "transparent"
+    };
+    const off = {
+      color: "lightgray",
+      fontWeight: "normal",
+      border: "none",
+      backgroundColor: "transparent"
+    };
+    return isSelected ? on : off;
+  }
+
   render() {
+    if (Object.keys(this.props.userQuery).length === 0) {
+      return null;
+    }
     const selectedViewer = this.state.viewerName;
     return (
       <div>
         <div>
-          <button onClick={() => this.onClick("news")}>News</button>
-          <button onClick={() => this.onClick("tweets")}>Tweets</button>
+          <div id="what-happened-viewer-manager-header">
+            <h2 id="what-happened-viewer-manager-title">
+              {selectedViewer === "news" ? "News" : "Tweets"} about{" "}
+              {this.props.userQuery.company}
+            </h2>
+            <div>
+              <button
+                style={this.buttonStyle(selectedViewer === "news")}
+                onClick={() => this.onClick("news")}
+              >
+                News
+              </button>
+              <button
+                style={this.buttonStyle(selectedViewer === "tweets")}
+                onClick={() => this.onClick("tweets")}
+              >
+                Tweets
+              </button>
+            </div>
+          </div>
           <div
             style={{
               display: selectedViewer == "news" ? "block" : "none"
             }}
           >
             <Viewer
-              userQuery={this.state.userQuery}
+              userQuery={this.props.userQuery}
               fetchFunction={fetchNews}
             />
           </div>
@@ -55,7 +76,7 @@ class ViewerManager extends React.Component {
             }}
           >
             <Viewer
-              userQuery={this.state.userQuery}
+              userQuery={this.props.userQuery}
               fetchFunction={fetchTweets}
             />
           </div>
