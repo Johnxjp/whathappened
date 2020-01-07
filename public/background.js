@@ -8,15 +8,16 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.action === "setOnIcon") {
     chrome.browserAction.setIcon({
-      path: "on_icon.png",
+      path: "icons/on_icon.png",
       tabId: sender.tab.id
     });
-  }
-
-  if (request.action === "setOffIcon") {
+  } else if (request.action === "setOffIcon") {
     chrome.browserAction.setIcon({
-      path: "off_icon.png",
+      path: "icons/off_icon.png",
       tabId: sender.tab.id
     });
+  } else if (request.action === "closeWindow") {
+    console.log("detected close window from react");
+    chrome.tabs.sendMessage(request.tabId, { action: `browserActionClicked` });
   }
 });

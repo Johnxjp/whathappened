@@ -12,7 +12,7 @@
   ],
   "permissions": ["https://twitter.com/*"],
   "browser_action": {
-    "default_icon": "off_icon.png"
+    "default_icon": "icons/off_icon.png"
   },
   "background": {
     "scripts": ["background.js", "twitter.js"],

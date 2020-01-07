@@ -177,19 +177,19 @@ function extractDateRange(text, timePeriod, chartTime) {
 function timePeriodRegex(timePeriod) {
   switch (timePeriod) {
     case "1 day":
-      return /\d{2}:\d{2}( \d{4})?/g;
+      return /\d{2}:\d{2}(,? \d{4})?/g;
     case "5 days":
-      return /\d{1,2} \w{3,4} \d{2}:\d{2}( \d{4})?/g;
+      return /\d{1,2} \w{3,4}(,? \d{4})? \d{2}:\d{2}|\w{3,4} \d{1,2}(,? \d{4})? \d{2}:\d{2}/g;
     case "1 month":
     case "6 months":
     case "YTD":
-      return /\d{1,2} \w{3,4}( \d{4})?/g;
+      return /\d{1,2} \w{3,4}(,? \d{4})?|\w{3,4} \d{1,2}(,? \d{4})/g;
     case "1 year":
     case "5 years":
     case "Max":
-      return /\d{1,2} \w{3,4} \d{4}/g;
+      return /\d{1,2} \w{3,4} \d{4}|\w{3,4} \d{1,2}, \d{4}/g;
     default:
-      return /\w{3,4}, \d{1,2} \w{3,4}( \d{4})?/g;
+      return /(\w{3,4}, )?\d{1,2} \w{3,4}(,? \d{4})?/g;
   }
 }
 
@@ -307,9 +307,12 @@ function toggleIframe() {
   }
 }
 
-chrome.runtime.onMessage.addListener(function(request, sender, senderResponse) {
+chrome.runtime.onMessage.addListener(function(request) {
+  console.log("request action", request.action);
   if (request.action === "browserActionClicked") {
     toggleIframe();
+  } else if (request.action === "closeWindow") {
+    hideIframe();
   }
 });
 

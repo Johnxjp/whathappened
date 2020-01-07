@@ -1,5 +1,7 @@
 body {
-  margin: 1em;
+  margin-right: 1em;
+  margin-left: 1em;
+  margin-top: 0em;
   font-family: Soleil, "Helvetica Neue", "Lucida Grande", sans-serif;
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;

@@ -36,7 +36,6 @@ class ViewerManager extends React.Component {
     const selectedViewer = this.state.viewerName;
     return (
       <div>
-        <h1 style={{ fontSize: "large" }}>What Happened?</h1>
         <div>
           <button onClick={() => this.onClick("news")}>News</button>
           <button onClick={() => this.onClick("tweets")}>Tweets</button>
