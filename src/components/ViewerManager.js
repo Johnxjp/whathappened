@@ -3,6 +3,7 @@
 import React from "react";
 import Viewer from "./Viewer";
 import { fetchTweets, fetchNews } from "../functionality/dataFetchers";
+const colloquialNames = require("../data/colloquial_names.json");
 
 class ViewerManager extends React.Component {
   constructor(props) {
@@ -21,6 +22,7 @@ class ViewerManager extends React.Component {
         // convert to date object from string
         dateStart = new Date(dateStart);
         dateEnd = dateEnd === null ? null : new Date(dateEnd);
+        company = colloquialNames[company] || company;
         this.setState({ userQuery: { company, ticker, dateStart, dateEnd } });
       }
     });

@@ -55,7 +55,7 @@ class Viewer extends React.Component {
     }
     return (
       <>
-        <h3>Here's what we found about {this.props.userQuery.company}</h3>
+        <h3>Here's what we found on {this.props.userQuery.company}</h3>
         <ol>{data.map(item => item.render())}</ol>
       </>
     );

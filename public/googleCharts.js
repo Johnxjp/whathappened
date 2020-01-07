@@ -18,8 +18,15 @@ window.addEventListener("load", () => {
   if (element !== null) {
     const interactor = new GoogleChartInteractor(element);
     interactor.addChartListeners();
+    setOnIcon();
     renderIframe();
+  } else {
+    setOffIcon();
   }
+});
+
+window.addEventListener("unload", () => {
+  setOffIcon();
 });
 
 class GoogleChartInteractor {
@@ -305,3 +312,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, senderResponse) {
     toggleIframe();
   }
 });
+
+function setOnIcon() {
+  chrome.runtime.sendMessage({ action: "setOnIcon" });
+}
+
+function setOffIcon() {
+  chrome.runtime.sendMessage({ action: "setOffIcon" });
+}

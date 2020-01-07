@@ -1,9 +1,7 @@
 /* global chrome*/
 import { TwitterDataItem, NewsDataItem } from "./dataItem";
-const colloquialNames = require("../data/colloquial_names.json");
 
 export function fetchTweets({ company, ticker, dateStart, dateEnd }) {
-  company = colloquialNames[company] || company;
   const messageData = {
     action: "getTweets",
     data: {
@@ -32,7 +30,6 @@ function buildSearchURL(
 ) {
   // use regex with global modifier to replace all occurences of " " with "+"
   // to be able to pass as query to url
-  company = colloquialNames[company] || company;
   let query = `intext:"${company.replace(/ /g, "+")}"+`;
   query += `${ticker.replace(/ /g, "+")}+intext:(stock+OR+shares)`;
   const dateStartString = dateStart.toLocaleDateString(locale);
