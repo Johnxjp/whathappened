@@ -33,31 +33,36 @@ export default class SummaryPanel extends React.Component {
     return text.replace(/ 00:00/g, "");
   }
 
+  formatPriceString(startPrice, endPrice, currency) {
+    const priceChange = endPrice - startPrice;
+    const percentChange = Math.abs(priceChange) / endPrice;
+    const changeSymbol = priceChange > 0 ? "+" : "";
+    return `${startPrice}-${endPrice} ${currency}, 
+    ${changeSymbol}${priceChange.toFixed(2)} (${percentChange.toFixed(2)}%)`;
+  }
+
   render() {
     if (Object.keys(this.props.userQuery).length === 0) {
       return null;
     }
-
-    const {
-      company,
-      ticker,
-      dateStart,
-      dateEnd,
-      priceChange
-    } = this.props.userQuery;
+    const userQuery = this.props.userQuery;
     return (
       <div id="what-happened-summary">
         <h2 id="what-happened-summary-company">
-          {company} ({ticker})
+          {userQuery.company} ({userQuery.ticker})
         </h2>
         <p id="what-happened-summary-date-range">
-          {this.formatDateString(dateStart, dateEnd)}
+          {this.formatDateString(userQuery.dateStart, userQuery.dateEnd)}
         </p>
         <p
           id="what-happened-summary-price"
-          style={{ color: this.getPriceColor(priceChange) }}
+          style={{ color: this.getPriceColor(userQuery.priceChange) }}
         >
-          {priceChange}
+          {this.formatPriceString(
+            userQuery.startPrice,
+            userQuery.endPrice,
+            userQuery.currency
+          )}
         </p>
       </div>
     );

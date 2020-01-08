@@ -41,10 +41,6 @@ class ViewerManager extends React.Component {
       <div>
         <div>
           <div id="what-happened-viewer-manager-header">
-            <h2 id="what-happened-viewer-manager-title">
-              {selectedViewer === "news" ? "News" : "Tweets"} about{" "}
-              {this.props.userQuery.company}
-            </h2>
             <div>
               <button
                 style={this.buttonStyle(selectedViewer === "news")}
@@ -61,6 +57,7 @@ class ViewerManager extends React.Component {
             </div>
           </div>
           <div
+            class="what-happened-viewer"
             style={{
               display: selectedViewer == "news" ? "block" : "none"
             }}
@@ -71,6 +68,7 @@ class ViewerManager extends React.Component {
             />
           </div>
           <div
+            class="what-happened-viewer"
             style={{
               display: selectedViewer == "tweets" ? "block" : "none"
             }}

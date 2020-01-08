@@ -1,12 +1,13 @@
 #what-happened-viewer-manager-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  margin-bottom: 0.5em;
+  flex-direction: row-reverse;
 }
 
-#what-happened-viewer-manager-title {
-  margin: 0em;
-  font-size: large;
+.what-happened-viewer {
+  overflow: auto;
+  height: 430px;
+  padding-right: 1em;
 }
 
 button:hover {

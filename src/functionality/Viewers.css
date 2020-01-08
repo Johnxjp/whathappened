@@ -40,14 +40,15 @@
 }
 
 #news-item-list {
-  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 #tweet-item-list {
-  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 ol {
+  margin-block-start: 0.5em;
   list-style-type: none;
   padding-inline-start: 0px;
 }

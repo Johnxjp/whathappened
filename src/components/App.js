@@ -3,7 +3,8 @@ import React from "react";
 import ViewerManager from "./ViewerManager";
 import Header from "./Header";
 import SummaryPanel from "./SummaryPanel";
-const colloquialNames = require("../data/colloquial_names.json");
+// const colloquialNames = require("../data/colloquial_names.json");
+import colloquialise from "../functionality/colloquialise";
 
 export default class App extends React.Component {
   constructor(props) {
@@ -17,14 +18,13 @@ export default class App extends React.Component {
     chrome.runtime.onMessage.addListener(request => {
       if (request.action === "chartClicked") {
         console.log("React: request received", request);
-        let { company, ticker, priceChange, dateStart, dateEnd } = request.data;
+        const userQuery = request.data;
+        userQuery.dateStart = new Date(userQuery.dateStart);
         // convert to date object from string
-        dateStart = new Date(dateStart);
-        dateEnd = dateEnd === null ? null : new Date(dateEnd);
-        company = colloquialNames[company] || company;
-        this.setState({
-          userQuery: { company, ticker, priceChange, dateStart, dateEnd }
-        });
+        userQuery.dateEnd =
+          userQuery.dateEnd === null ? null : new Date(userQuery.dateEnd);
+        userQuery.company = colloquialise(userQuery.company);
+        this.setState({ userQuery });
       }
     });
   }
