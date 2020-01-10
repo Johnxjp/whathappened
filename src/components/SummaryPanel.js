@@ -4,11 +4,11 @@ import "./SummaryPanel.css";
 export default class SummaryPanel extends React.Component {
   getPriceColor(priceChange) {
     if (priceChange > 0) {
-      return "green";
+      return "#0f9d58";
     } else if (priceChange < 0) {
-      return "red";
+      return "orangered";
     } else {
-      return "lightgray";
+      return "gray";
     }
   }
 
