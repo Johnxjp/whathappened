@@ -30,8 +30,8 @@ function buildSearchURL(
 ) {
   // use regex with global modifier to replace all occurences of " " with "+"
   // to be able to pass as query to url
-  let query = `intext:"${company.replace(/ /g, "+")}"+`;
-  query += `${ticker.replace(/ /g, "+")}+intext:(stock+OR+shares)`;
+  let query = `intitle:"${company.replace(/ /g, "+")}"+`;
+  query += `${ticker}+intext:(stock+OR+shares)`;
   const dateStartString = dateStart.toLocaleDateString(locale);
   let dateEndString = dateStartString;
   if (dateEnd !== null) {
@@ -78,19 +78,23 @@ function extractNewsItems(aTags) {
 
 export async function fetchNews(userQuery) {
   // Makes a fetch to get the news page and returns news elements. Returns promise
-  let allNews = [];
-  if (Object.keys(userQuery).length === 0) {
-    return allNews;
-  }
-  const url = buildSearchURL(userQuery);
-  console.log("URL to get", url);
-  const pageHTML = await fetchNewsHTML(url);
-  if (pageHTML === null) return allNews;
+  // let allNews = [];
+  // if (Object.keys(userQuery).length === 0) {
+  //   return allNews;
+  // }
+  // const url = buildSearchURL(userQuery);
+  // console.log("URL to get", url);
+  // const pageHTML = await fetchNewsHTML(url);
+  // if (pageHTML === null) return allNews;
 
-  for (let newsCard of pageHTML.getElementsByClassName("g")) {
-    const aTags = newsCard.getElementsByTagName("a");
-    const newsItems = extractNewsItems(aTags);
-    allNews = allNews.concat(newsItems);
-  }
-  return allNews;
+  // for (let newsCard of pageHTML.getElementsByClassName("g")) {
+  //   const aTags = newsCard.getElementsByTagName("a");
+  //   const newsItems = extractNewsItems(aTags);
+  //   allNews = allNews.concat(newsItems);
+  // }
+  // return allNews;
+
+  const content = require("../data/tesla_news_content.json");
+  const articles = content["items"];
+  return articles.map(item => new NewsDataItem(item));
 }

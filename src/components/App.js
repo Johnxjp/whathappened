@@ -22,7 +22,9 @@ export default class App extends React.Component {
         userQuery.dateStart = new Date(userQuery.dateStart);
         // convert to date object from string
         userQuery.dateEnd =
-          userQuery.dateEnd === null ? null : new Date(userQuery.dateEnd);
+          userQuery.dateEnd === null
+            ? userQuery.dateStart
+            : new Date(userQuery.dateEnd);
         userQuery.company = colloquialise(userQuery.company);
         this.setState({ userQuery });
       }

@@ -10,11 +10,17 @@ class dataItem {
 }
 
 export class NewsDataItem extends dataItem {
-  render() {
+  render(renderThin = false) {
     const data = this.data;
     return (
       <li id="news-item-list" key={data.heading}>
-        <a href={data.link} className="news-heading-link">
+        <a
+          href={data.link}
+          className={
+            renderThin ? "news-heading-link" : "news-heading-link-first"
+          }
+          target="_blank"
+        >
           {data.heading}
           <span className="news-item-date-source-text">
             {" "}
@@ -32,7 +38,7 @@ export class TwitterDataItem extends dataItem {
     return (
       <li id="tweet-item-list" key={data}>
         <a href={data.tweetURL} className="tweet-heading-link">
-          {data.text}{" "}
+          {data.heading}{" "}
           <span className="tweet-item-date-source-text">
             [
             <a style={{ color: "lightblue" }} href={data.accountTwitterURL}>

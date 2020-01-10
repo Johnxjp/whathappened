@@ -35,9 +35,9 @@ export default class SummaryPanel extends React.Component {
 
   formatPriceString(startPrice, endPrice, currency) {
     const priceChange = endPrice - startPrice;
-    const percentChange = Math.abs(priceChange) / endPrice;
+    const percentChange = (Math.abs(priceChange) * 100) / startPrice;
     const changeSymbol = priceChange > 0 ? "+" : "";
-    return `${startPrice}-${endPrice} ${currency}, 
+    return `${startPrice.toFixed(2)}-${endPrice.toFixed(2)} ${currency}, 
     ${changeSymbol}${priceChange.toFixed(2)} (${percentChange.toFixed(2)}%)`;
   }
 

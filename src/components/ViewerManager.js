@@ -40,7 +40,7 @@ class ViewerManager extends React.Component {
     return (
       <div>
         <div>
-          <div id="what-happened-viewer-manager-header">
+          {/* <div id="what-happened-viewer-manager-header">
             <div>
               <button
                 style={this.buttonStyle(selectedViewer === "news")}
@@ -55,7 +55,7 @@ class ViewerManager extends React.Component {
                 Tweets
               </button>
             </div>
-          </div>
+          </div> */}
           <div
             class="what-happened-viewer"
             style={{
@@ -67,7 +67,7 @@ class ViewerManager extends React.Component {
               fetchFunction={fetchNews}
             />
           </div>
-          <div
+          {/* <div
             class="what-happened-viewer"
             style={{
               display: selectedViewer == "tweets" ? "block" : "none"
@@ -77,7 +77,7 @@ class ViewerManager extends React.Component {
               userQuery={this.props.userQuery}
               fetchFunction={fetchTweets}
             />
-          </div>
+          </div> */}
         </div>
       </div>
     );

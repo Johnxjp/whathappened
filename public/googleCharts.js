@@ -193,7 +193,7 @@ function extractDateRange(text, timePeriod, chartTime) {
 function timePeriodRegex(timePeriod) {
   switch (timePeriod) {
     case "1 day":
-      return /\d{2}:\d{2}(,? \d{4})?/g;
+      return /\d{1,2}:\d{1,2}(,? \d{4})?/g;
     case "5 days":
       return /\d{1,2} \w{3,4}(,? \d{4})? \d{2}:\d{2}|\w{3,4} \d{1,2}(,? \d{4})? \d{2}:\d{2}/g;
     case "1 month":
@@ -269,7 +269,7 @@ function makeDateObject(dateText, timePeriod, chartTime) {
   if (timePeriod === "1 day") {
     // Checks if the dateText can be formatted into a Date. This requires the year
     // Not sure what happens on say 1st of Jan / 1st of month
-    const dateMatch = dateText.match(/\d{2}:\d{2}/);
+    const dateMatch = dateText.match(/\d{1,2}:\d{1,2}/);
     if (dateMatch === null) return null;
     const [hour, minute] = dateMatch[0].split(":");
     const date = new Date(Date.parse(chartTime));

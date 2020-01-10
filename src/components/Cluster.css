@@ -1,0 +1,11 @@
+#show-more-button {
+  text-decoration: underline;
+  color: lightgray;
+  font-style: italic;
+  font-size: 12px;
+}
+
+#show-more-button:hover {
+  cursor: pointer;
+  color: darkorange;
+}

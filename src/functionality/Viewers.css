@@ -27,17 +27,29 @@
   color: white;
   text-decoration: none;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 200;
+  display: block;
+}
+
+.news-heading-link-first {
+  color: white;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
   display: block;
 }
 
 .news-heading-link:hover {
-  font-weight: bold;
+  color: darkorange;
 }
 
-.news-heading-link:visited {
-  all: inherit;
+.news-heading-link-first:hover {
+  color: darkorange;
 }
+
+/* .news-heading-link:visited {
+  all: inherit;
+} */
 
 #news-item-list {
   margin-bottom: 5px;
