@@ -1,10 +1,8 @@
 import React from "react";
+import { NewsDataItem, InteractiveNewsDataItem } from "./DataItem";
 import "./Cluster.css";
-import "../functionality/Viewers.css";
 
 export default class Cluster extends React.Component {
-  // if cluster.showAll == false, show the first element in the items list + a showAll button whose onClick method toggles cluster.showAll
-  // else, show all items in the items list
   constructor(props) {
     super(props);
     this.state = {
@@ -22,14 +20,16 @@ export default class Cluster extends React.Component {
     const showMoreButton = dislayItems.length < this.state.items.length;
     return (
       <ol>
-        {dislayItems.map((item, index) => item.render(index > 0))}
+        {dislayItems.map((item, index) => {
+          if (index === 0) {
+            return <NewsDataItem data={item} />;
+          } else {
+            return <NewsDataItem thinText={true} data={item} />;
+          }
+        })}
         {showMoreButton ? (
-          <p
-            style={{ marginBlockStart: "0em" }}
-            id="show-more-button"
-            onClick={() => this.increment()}
-          >
-            Show more related items
+          <p id="show-more-button" onClick={() => this.increment()}>
+            See {dislayItems.length > 1 ? "more " : ""}related articles
           </p>
         ) : null}
       </ol>

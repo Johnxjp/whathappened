@@ -7,6 +7,7 @@ Look into components did update
 import React from "react";
 import preprocess from "../functionality/utils";
 import Cluster from "./Cluster";
+import { NewsDataItem } from "./DataItem";
 
 class Viewer extends React.Component {
   constructor(props) {
@@ -18,6 +19,7 @@ class Viewer extends React.Component {
     };
   }
 
+  // TODO: Refactor this
   fetchData(currentQuery) {
     this.setState({ loading: true });
     this.props
@@ -88,17 +90,30 @@ class Viewer extends React.Component {
       );
     }
     const clusters = this.state.clusters;
-    let introText = "Here are some possible explanations:";
     if (clusters.length === 0) {
-      introText =
-        "We couldn't identify any significant events, but here are some articles that might help.";
+      return (
+        <div>
+          <p style={{ marginBlockStart: "0em" }}>
+            We couldn't identify any significant events, but here are some
+            articles that might help.
+          </p>
+          <ol>
+            {this.state.data.map(item => (
+              <NewsDataItem data={item} />
+            ))}
+          </ol>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <p style={{ marginBlockStart: "0em" }}>
+            Here are some possible explanations:
+          </p>
+          {clusters}
+        </div>
+      );
     }
-    return (
-      <div>
-        <p style={{ marginBlockStart: "0em" }}>{introText}</p>
-        {this.state.clusters.map(cluster => cluster)}
-      </div>
-    );
   }
 
   render() {

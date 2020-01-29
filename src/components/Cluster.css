@@ -3,6 +3,7 @@
   color: lightgray;
   font-style: italic;
   font-size: 12px;
+  margin-block-start: 0em;
 }
 
 #show-more-button:hover {

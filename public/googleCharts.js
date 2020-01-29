@@ -169,8 +169,10 @@ function extractCurrency(financeElement) {
 
 function extractDateRange(text, timePeriod, chartTime) {
   // Format of text +0.55 (0.37%)  ‎Fri, 13 Dec 15:00-Mon, 16 Dec 11:00
+  console.log("text", text, "Time period", timePeriod);
   const dateTimeFormat = timePeriodRegex(timePeriod);
   const dates = text.match(dateTimeFormat);
+  console.log("Matched dates", dates);
   if (dates === null) {
     const now = new Date();
     return [now, now];
@@ -195,7 +197,8 @@ function timePeriodRegex(timePeriod) {
     case "1 day":
       return /\d{1,2}:\d{1,2} \w{2}(,? \d{4})?/g;
     case "5 days":
-      return /\d{1,2} \w{3,4}(,? \d{4})? \d{2}:\d{2} \w{2}|\w{3,4} \d{1,2}(,? \d{4})? \d{1,2}:\d{1,2} \w{2}/g;
+      // ‎Wed, 22 Jan 16:00-Thu, 23 Jan 11:00
+      return /\w{3,4}, \d{1,2} \w{3,4} (\d{4} )?\d{1,2}:\d{1,2}(\w{2})?|\w{3,4} \d{1,2}(,? \d{4})? \d{1,2}:\d{1,2} \w{2}/g;
     case "1 month":
     case "6 months":
     case "YTD":

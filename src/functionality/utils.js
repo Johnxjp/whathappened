@@ -7,5 +7,5 @@ function _preprocess(sentence, company, ticker) {
 }
 
 export default function preprocess(items, company, ticker) {
-  return items.map(item => _preprocess(item.data.heading, company, ticker));
+  return items.map(item => _preprocess(item.heading, company, ticker));
 }

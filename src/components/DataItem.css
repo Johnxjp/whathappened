@@ -1,0 +1,47 @@
+.news-item-date-source-text {
+  color: lightgray;
+}
+
+.news-heading-link {
+  color: white;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 200;
+  display: block;
+}
+
+#news-heading-link-normal {
+  font-weight: 200;
+}
+
+#news-heading-link-first {
+  font-weight: 600;
+  margin-block-end: 0.1em;
+}
+
+.news-heading-link:hover {
+  color: darkorange;
+}
+
+#news-heading-link-first:hover {
+  cursor: pointer;
+}
+
+#news-item-list {
+  margin-bottom: 5px;
+}
+
+ol {
+  margin-block-start: 0.5em;
+  list-style-type: none;
+  padding-inline-start: 0px;
+}
+
+#what-happened-read-more-link {
+  text-decoration: underline;
+  color: white;
+}
+
+#what-happened-read-more-link:hover {
+  color: darkorange;
+}

@@ -10,7 +10,7 @@
       "matches": ["https://www.google.com/*"]
     }
   ],
-  "permissions": ["https://twitter.com/*"],
+  "permissions": ["https://twitter.com/*", "http://0.0.0.0:5000/*"],
   "browser_action": {
     "default_icon": "icons/off_icon.png"
   },

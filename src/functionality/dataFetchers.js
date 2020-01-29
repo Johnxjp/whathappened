@@ -1,27 +1,27 @@
 /* global chrome*/
-import { TwitterDataItem, NewsDataItem } from "./dataItem";
+// import { TwitterDataItem } from "../components/DataItem";
 
-export function fetchTweets({ company, ticker, dateStart, dateEnd }) {
-  const messageData = {
-    action: "getTweets",
-    data: {
-      company: company,
-      ticker: ticker,
-      dateStart: dateStart,
-      dateEnd: dateEnd
-    }
-  };
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(messageData, response => {
-      if (response.success) {
-        const items = response.items.map(item => new TwitterDataItem(item));
-        resolve(items);
-      } else {
-        reject(new Error("Could not receive tweets"));
-      }
-    });
-  });
-}
+// export function fetchTweets({ company, ticker, dateStart, dateEnd }) {
+//   const messageData = {
+//     action: "getTweets",
+//     data: {
+//       company: company,
+//       ticker: ticker,
+//       dateStart: dateStart,
+//       dateEnd: dateEnd
+//     }
+//   };
+//   return new Promise((resolve, reject) => {
+//     chrome.runtime.sendMessage(messageData, response => {
+//       if (response.success) {
+//         const items = response.items.map(item => new TwitterDataItem(item));
+//         resolve(items);
+//       } else {
+//         reject(new Error("Could not receive tweets"));
+//       }
+//     });
+//   });
+// }
 
 function buildSearchURL(
   { company, ticker, dateStart, dateEnd = null },
@@ -59,7 +59,7 @@ function extractNewsItem(tag) {
   const heading = tag.innerText;
   const link = tag.href;
   const timePosted = parentDivSpans[2].innerText;
-  return new NewsDataItem({ heading, source, timePosted, link });
+  return { heading, source, timePosted, link };
 }
 
 function extractNewsItems(aTags) {
@@ -78,23 +78,23 @@ function extractNewsItems(aTags) {
 
 export async function fetchNews(userQuery) {
   // Makes a fetch to get the news page and returns news elements. Returns promise
-  // let allNews = [];
-  // if (Object.keys(userQuery).length === 0) {
-  //   return allNews;
-  // }
-  // const url = buildSearchURL(userQuery);
-  // console.log("URL to get", url);
-  // const pageHTML = await fetchNewsHTML(url);
-  // if (pageHTML === null) return allNews;
+  let allNews = [];
+  if (Object.keys(userQuery).length === 0) {
+    return allNews;
+  }
+  const url = buildSearchURL(userQuery);
+  console.log("URL to get", url);
+  const pageHTML = await fetchNewsHTML(url);
+  if (pageHTML === null) return allNews;
 
-  // for (let newsCard of pageHTML.getElementsByClassName("g")) {
-  //   const aTags = newsCard.getElementsByTagName("a");
-  //   const newsItems = extractNewsItems(aTags);
-  //   allNews = allNews.concat(newsItems);
-  // }
-  // return allNews;
+  for (let newsCard of pageHTML.getElementsByClassName("g")) {
+    const aTags = newsCard.getElementsByTagName("a");
+    const newsItems = extractNewsItems(aTags);
+    allNews = allNews.concat(newsItems);
+  }
+  return allNews;
 
-  const content = require("../data/tesla_news_content.json");
-  const articles = content["items"];
-  return articles.map(item => new NewsDataItem(item));
+  // const content = require("../data/tesla_news_content.json");
+  // const articles = content["items"];
+  // return articles;
 }

@@ -3,7 +3,6 @@ import React from "react";
 import ViewerManager from "./ViewerManager";
 import Header from "./Header";
 import SummaryPanel from "./SummaryPanel";
-// const colloquialNames = require("../data/colloquial_names.json");
 import colloquialise from "../functionality/colloquialise";
 
 export default class App extends React.Component {

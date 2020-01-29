@@ -78,7 +78,7 @@ function parseTweets(tweetElement) {
   const handle = tweetMain.getAttribute("data-screen-name");
   const tweetContent = tweetElement.querySelector("div.content").children;
   console.log(account, tweetURL, tweetContent, handle);
-  const [accountTwitterURL, date, text, sourceURL] = parseTweetContent(
+  const [accountTwitterURL, date, heading, sourceURL] = parseTweetContent(
     tweetContent
   );
   return {
@@ -86,7 +86,7 @@ function parseTweets(tweetElement) {
     handle,
     accountTwitterURL,
     date,
-    text,
+    heading,
     sourceURL,
     tweetURL
   };
@@ -101,24 +101,24 @@ function parseTweetContent(tweetContent) {
     BASE_URL + header.querySelector(".account-group").getAttribute("href");
   let date = header.textContent.match(/\w{3,4} \d{1,2}/);
   date = date === null ? "" : date[0];
-  let [text, sourceURL] = parseTextElement(textElement);
-  return [accountURL, date, text, sourceURL];
+  let [heading, sourceURL] = parseTextElement(textElement);
+  return [accountURL, date, heading, sourceURL];
 }
 
 function parseTextElement(textElement) {
   const paragraph = textElement.querySelector("p");
   const aTags = paragraph.getElementsByTagName("a");
-  let text = paragraph.textContent;
+  let heading = paragraph.textContent;
   let sourceURL = null;
   for (let tag of aTags) {
     if (tag.hasAttribute("data-expanded-url")) {
       sourceURL = tag.href;
       // Source URL is often added to text content
-      text = text.replace(tag.getAttribute("data-expanded-url"), "");
+      heading = heading.replace(tag.getAttribute("data-expanded-url"), "");
     }
   }
-  text = text.replace(/pic.twitter.com\/\w[A-Za-z0-9]*/g, "");
-  return [text.trim(), sourceURL];
+  heading = heading.replace(/pic.twitter.com\/\w[A-Za-z0-9]*/g, "");
+  return [heading.trim(), sourceURL];
 }
 
 async function getTweets({ company, ticker, dateStart, dateEnd }) {
